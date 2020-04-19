@@ -1,7 +1,7 @@
 import React from "react";
-import { AddTodo } from "./AddTodo";
-import { TodoList } from "./TodoList";
-import { FilterTodo } from "./FilterTodo";
+import { AddTodo } from "../components/AddTodo";
+import { TodoList } from "../components/TodoList";
+import { FilterTodo } from "../components/FilterTodo";
 
 window.id = 0;
 export class TodoApp extends React.Component {
