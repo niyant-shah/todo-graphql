@@ -1,56 +1,34 @@
-const todos = [
-  { id: 1, name: "Test 1", isStatus: true },
-  { id: 2, name: "Test 2", isStatus: false },
-  { id: 3, name: "Test 3", isStatus: false },
-  { id: 4, name: "Test 4", isStatus: false },
-  { id: 5, name: "Test 5", isStatus: true },
-  { id: 6, name: "Test 6", isStatus: true },
-];
-
 module.exports = {
   Query: {
-    todos: () => {
-      return {
-        success: true,
-        message: "Get All Todo List",
-        todos: todos,
-      };
+    todos: async (root, args, { models }) => {
+      return await models.todos.findAll();
     },
-    todo: (parent, args, context, info) => {
-      return {
-        success: true,
-        message: "Get Todo",
-        todo: todos.find((res) => res.id == args.id),
-      };
+    todo: async (root, args, { models }) => {
+      return await models.todos.findOne({ id: args.id });
     },
-    todoStatus: (parent, args, context, info) => {
-      return {
-        success: true,
-        message: "Get Todo list by Status",
-        todos: todos.filter((res) => res.isStatus == args.isStatus),
-      };
+    todoStatus: async (root, args, { models }) => {
+      return await models.todos.findOne({ isStatus: args.isStatus });
     },
   },
 
   Mutation: {
-    addTodo: (parent, args, context, info) => {
-      let count = todos.length;
-      todos.push({ id: count + 1, name: args.name, isStatus: args.isStatus });
-      return {
-        success: true,
-        message: "Create new Todo",
-        todo: todos.find((res) => res.name == args.name),
-      };
+    addTodo: async (root, args, { models }) => {
+      let today = new Date();
+      return await models.todos.create({
+        name: args.name,
+        isStatus: args.isStatus,
+        createdAt: today,
+        updatedAt: today
+      });
     },
-    updateStatus: (parent, args, context, info) => {
-      let data = todos.find((res) => res.id == args.id);
-      data["isStatus"] = args.isStatus;
-
-      return {
-        success: true,
-        message: "Update Todo",
-        todo: todos.find((res) => res.id == args.id),
-      };
+    updateStatus: async (root, args, { models }) => {
+      let today = new Date();
+      await models.todos.update(
+        { isStatus: args.isStatus, updatedAt: today },
+        { where: { id: Number(args.id) } }
+      );
+      
+      return await models.todos.findByPk(Number(args.id));
     },
   },
 };

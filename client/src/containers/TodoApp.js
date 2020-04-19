@@ -1,9 +1,9 @@
 import React from "react";
-import { AddTodo } from "./AddTodo";
-import { TodoList } from "./TodoList";
-import { FilterTodo } from "./FilterTodo";
+import { AddTodo } from "../components/AddTodo";
+import { TodoList } from "../components/TodoList";
+import { FilterTodo } from "../components/FilterTodo";
+import { indexTodo, storeTodo, updateTodo } from "../apis/index";
 
-window.id = 0;
 export class TodoApp extends React.Component {
   constructor(props) {
     super(props);
@@ -15,19 +15,41 @@ export class TodoApp extends React.Component {
     };
   }
 
+  componentDidMount() {
+    indexTodo()
+      .then((res) => {
+        this.setState({ data: res.todos });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
   addTodo(val) {
-    const todo = { name: val, isStatus: false, id: window.id++ };
+    const todo = { name: val, isStatus: false };
 
-    this.state.data.push(todo);
-
-    this.setState({ data: this.state.data });
+    storeTodo(todo)
+      .then((res) => {
+        this.state.data.push(res.addTodo);
+        this.setState({ data: this.state.data });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   handleComplented(id) {
     const todo = this.state.data.find((res) => res.id == id);
-    todo["isStatus"] = !todo.isStatus;
-
-    this.setState({ data: this.state.data });
+    let status = todo.isStatus;
+    updateTodo(id, !status)
+      .then((res) => {
+        const todoIndex = this.state.data.findIndex((res) => res.id == id);
+        this.state.data[todoIndex] = res.updateStatus;
+        this.setState({ data: this.state.data });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 
   handleFilter(type) {
